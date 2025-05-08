@@ -28,7 +28,15 @@ function App() {
     });
   }
 
-  function handleDeleteTask() {}
+  function handleDeleteTask(id) {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        tasks: prevState.tasks.filter((task) => task.id !== id),
+      };
+    });
+  }
+
   function handleSelectProject(id) {
     setProjectsState((prevState) => {
       return {
@@ -69,12 +77,12 @@ function App() {
     });
   }
 
-  function handleDeleteProject(id) {
+  function handleDeleteProject() {
     setProjectsState((prevState) => {
       return {
         ...prevState,
         selectedProjectId: undefined,
-        project: prevState.projects.filter(
+        projects: prevState.projects.filter(
           (project) => project.id !== prevState.selectedProjectId
         ),
       };
@@ -85,15 +93,7 @@ function App() {
     (project) => project.id === projectsState.selectedProjectId
   );
 
-  let content = (
-    <SelectedProject
-      project={selectedProject}
-      onDelete={handleDeleteProject}
-      onAddTask={handleAddTask}
-      onDeleteTask={handleDeleteTask}
-      tasks={projectsState.tasks}
-    />
-  );
+  let content;
 
   if (projectsState.selectedProjectId === null) {
     content = (
@@ -101,6 +101,20 @@ function App() {
     );
   } else if (projectsState.selectedProjectId === undefined) {
     content = <NoProjectSelected onStartAddProject={handleStartAddProject} />;
+  } else if (selectedProject) {
+    const filteredTasks = projectsState.tasks.filter(
+      (task) => task.projectId === selectedProject.id
+    );
+
+    content = (
+      <SelectedProject
+        project={selectedProject}
+        onDelete={handleDeleteProject}
+        onAddTask={handleAddTask}
+        onDeleteTask={handleDeleteTask}
+        tasks={filteredTasks}
+      />
+    );
   }
 
   return (
@@ -109,6 +123,7 @@ function App() {
         onStartAddProject={handleStartAddProject}
         projects={projectsState.projects}
         onSelectProject={handleSelectProject}
+        selectedProjectId={projectsState.selectedProjectId}
       />
       {content}
     </main>
